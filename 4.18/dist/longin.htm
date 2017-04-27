@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+	<title>登录</title>
+</head>
+<body>
+	<div id="app">
+		<Reg></Reg>
+	</div>
+	<script type="text/javascript" src=js/vue.js></script>
+	<script>
+		var IuputElement = {
+			template:"<div>\
+				<label><slot></slot></label>\
+				<input type='text'/>\
+				<span></span>\
+			</div>",
+		}
+		var Reg = {
+			template:"<div>\
+				<h1>注册</h1>\
+				<form>\
+					<IuputElement>密码：</IuputElement>\
+					<IuputElement>账号：</IuputElement>\
+					<input type='button' value='登录'/>\
+					<input type='button' value='注册'/>\
+				</form>\
+			</div>",
+			components:{
+				IuputElement:IuputElement
+			},
+		}
+		var App = new Vue({
+			el:"#app",
+			components:{
+				Reg:Reg
+			}
+		});
+	</script>
+</body>
+</html>

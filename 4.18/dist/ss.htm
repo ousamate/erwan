@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+	<title>4.17vue</title>
+</head>
+<body>
+	<div id="app">
+		<p :title="message">{{message}}</p>
+		<p v-if="isShow">看见</p>
+		<table border="1">
+			<tr>
+				<th>姓名</th>
+				<th>年龄</th>
+			</tr>
+			<tr v-for="stu in students">
+				<td>{{stu.name}}</td>
+				<td>{{stu.age}}</td>
+			</tr>
+		</table>
+		<div>
+			<input type="button" value="ok" v-on:click="say($event,'hello')">
+		</div>
+		<div>
+			<input type="text" v-model="message"><span>{{message}}</span>
+		</div>
+		<my-component v-bind:message="message"></my-component>
+		<input type="button" value="点" v-on:click="Dian()"><span>{{dianji}}</span>
+		<br>
+
+		<input type="button" value="全选/反选" v-on:click="qxfx">
+		<input type="checkbox" id="sz1" value="1" v-model="checkedNames">
+		<label for="1">1</label>
+		<input type="checkbox" id="sz2" value="2" v-model="checkedNames">
+		<label for="2">2</label>
+		<input type="checkbox" id="sz3" value="3" v-model="checkedNames">
+		<label for="3">3</label>
+		<input type="checkbox" id="sz4" value="4" v-model="checkedNames">
+		<label for="4">4</label>
+		<input type="checkbox" id="sz5" value="5" v-model="checkedNames">
+		<label for="5">5</label>
+		<span>结果:{{checkedNames}}</span>
+
+	</div>
+	<script type="text/javascript" src="js/vue.js"></script>
+	<script type="text/javascript">
+		Vue.component('my-component',{
+			template:"<div><h1>标题</h1><p>内容,{{message}}</p></div>",
+			props:["message"]
+		});
+		var app = new Vue({
+			el:"#app",
+			data:{
+				dianji:"1",
+				message:"hello vue!!!",
+				title:"Say hello",
+				isShow:true,
+				students:[
+					{name:"张飞",age:20},
+					{name:"赵云",age:16},
+					{name:"关羽",age:25}
+				],
+				checkedNames:[],
+				checkedNamesArr:{}
+			},
+			methods:{
+				say:function(e,value){
+					console.log("say",e,value);
+					this.message = this.message.split('').reverse().join('');
+				},
+				Dian:function(){
+					this.dianji++;
+				},
+				
+			},
+
+		});
+	</script>
+</body>
+</html>

@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+	<title>学生管理</title>
+</head>
+<body>
+	<div id="app">
+		<Allstuden></Allstuden>
+	</div>
+	<script src="js/vue.js"></script>
+	<script src="js/ajax.js"></script>
+	<script>
+		//框框
+		var IuputElement = {
+			template:"<div>\
+				<label><slot></slot></label>\
+				<input type='text' :value='value' @input='updataValue'/>\
+				<span></span>\
+			</div>",
+			props:['value','info'],
+			methods:{
+				updataValue:function(e){
+					this.$emit("input",e.target.value);
+				}
+			}
+		}
+		//男女
+		var SexStudent = {
+			template:"<div>\
+				<label>性别：</label>\
+				<input type='radio' value='男' name='sex' :checked=\"value=='男'\" @change = 'updataValue' /><label>男</label>\
+				<input type='radio' value='女' name='sex' :checked=\"value=='女'\" @change = 'updataValue' /><label>女</label>\
+			</div>",
+			props:["value"],
+			methods:{
+				updataValue:function(e){
+					this.$emit('input',e.target.value);
+				}
+			}
+		}
+		//增加
+		var AddStudent = {
+			template:"<div>\
+				<h3>增加</h3>\
+				<IuputElement v-model='name'>姓名：</IuputElement>\
+				<IuputElement v-model='age'>年龄：</IuputElement>\
+				<SexStudent v-model='gender'></SexStudent>\
+				<input type='button' value='增加' @click='adddate'/>\
+			</div>",
+			props:["student","show"],
+			data:function(){
+				return{
+					name:"",
+					age:"",
+					gender:""
+				}
+			},
+			methods:{
+				adddate:function(){
+					ajax({
+						type:"post",
+						url:"/students/add",
+						data:{
+							name:this.name,
+							gender:this.gender,
+							age:this.age	
+						},
+						success:function(){
+							this.show()
+						}.bind(this)
+					});
+				}
+			},
+			components:{
+				IuputElement:IuputElement,
+				SexStudent
+			},
+		}
+		//修改
+		var ChangeStudent = {
+			template:"<div>\
+				<h3>修改</h3>\
+				<IuputElement v-model='stu.name'>姓名：</IuputElement>\
+				<IuputElement v-model='stu.age'>年龄：</IuputElement>\
+				<SexStudent v-model='stu.gender'></SexStudent>\
+				<input type='button' value='修改' @click='updata' />\
+			</div>",
+			props:['show','stu','checked'],
+			methods:{
+				updata:function(){
+					ajax({
+						type:"post",
+						url:"/students/update",
+						data:{
+							_id:this.stu._id,
+							name:this.stu.name,
+							gender:this.stu.gender,
+							age:this.stu.age
+						},
+						success:function(){
+							this.show()
+						}.bind(this)
+					});
+				}
+			},
+			components:{
+				IuputElement:IuputElement,
+				SexStudent
+			},
+		}
+		//搜索
+		var SearchStudent = {
+			template:"<div>\
+				<h3>搜索</h3>\
+				<input type='text' v-model= 'name'/>\
+				<input type='button' value='搜索' @click='seardate' />\
+			</div>",
+			props:['Search'],
+			data:function(){
+				return{
+					name:""
+				}
+			},
+			methods:{
+				seardate:function(){
+					ajax({
+						type:"post",
+						url:"/students/find",
+						data:{
+							name:this.name
+						},
+						success:function(data){
+							this.Search(data)
+						}.bind(this)
+					});
+				}
+			},
+			components:{
+				IuputElement:IuputElement
+			},
+		}
+		//<tr><td></td></tr>组件
+		var TdStudent = {
+			template:"<tr>\
+						<td>{{student.name}}</td>\
+						<td>{{student.age}}</td>\
+						<td>{{student.gender}}</td>\
+						<td>\
+							<input type='button' value='修改' @click='showById(student._id)'/>\
+							<input type='button' value='删除' @click='delById(student._id)' :show='show'/>\
+						</td>\
+			</tr>",
+			props:["student","SexStudent","setStudent","show"],
+			methods:{
+				showById:function(id){
+					ajax({
+						type:"get",
+						url:"/students/find",
+						data:{
+							_id:id
+						},
+						success:function(data){
+							this.setStudent(data);
+						}.bind(this)
+					});
+				},
+				delById:function(id){
+					ajax({
+						type:"get",
+						url:"/students/del",
+						data:{
+							_id:id
+						},
+						success:function(data){
+							this.setStudent(data),
+							this.show()
+						}.bind(this)
+					});
+				}
+			}
+		}
+		//翻页
+		var Page = {
+			template:"<div>\
+				<a >上一页</a>\
+				<a >下一页</a>\
+			</div>",
+		}
+		//表单
+		var TabelStudent = {
+			template:"<div>\
+				<table border='1'>\
+					<thead>\
+						<tr>\
+							<th>姓名</th>\
+							<th>年龄</th>\
+							<th>性别</th>\
+							<th>功能</th>\
+						</tr>\
+					</thead\>\
+					<tbody>\
+						<TdStudent v-for='student in students' :student='student' :setStudent='setStudent' :checked='checked' :show='show'></TdStudent>\
+					</tbody>\
+				</table>\
+			</div>",
+			props:["students","setStudent","checked","show"],
+			components:{
+				TdStudent,
+				IuputElement,
+				SexStudent
+			}
+		}
+
+
+
+		//汇总
+		var Allstuden = {
+			template:"<div>\
+				<h1>学生管理</h1>\
+				<AddStudent :student='student' :show='show' ></AddStudent>\
+				<ChangeStudent :student='student' :show='show' :stu='stu'></ChangeStudent>\
+				<SearchStudent :Search='Search'></SearchStudent>\
+				<TabelStudent :students='data.rows' :show='show' :setStudent='setStudent'></TabelStudent>\
+				<Page></Page>\
+			</div>",
+			data:function(){
+				return{
+					data:{},
+					student:{},
+					stu:{}
+				}
+			},
+			created:function(){
+				this.show();
+			},
+			methods:{
+				show:function(page){
+					ajax({
+						type:"get",
+						url:"/students/find",
+						data:{
+							page:page,
+							rows:50
+						},
+						success:function(data){
+							this.data = data;
+							console.log(data);
+						}.bind(this)
+					});
+				},
+				setStudent:function(student){
+					this.stu=student;
+					console.log(this.stu);
+				},
+				Search:function(name){
+					ajax({
+						type:"get",
+						url:"/students/find",
+						data:name[0],
+						success:function(data){
+							this.data = data;
+							console.log(data);
+						}.bind(this)
+					});
+				}
+			
+			},
+			components:{
+				AddStudent:AddStudent,
+				ChangeStudent:ChangeStudent,
+				SearchStudent:SearchStudent,
+				TabelStudent,
+				Page
+			},
+		}
+		var App = new Vue({
+			el:"#app",
+			components:{
+				Allstuden
+			}
+		});
+	</script>
+</body>
+</html>

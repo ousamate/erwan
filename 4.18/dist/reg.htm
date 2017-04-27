@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8"/>
+	<title>注册</title>
+</head>
+<body>
+	<div id="app">
+		<Reg></Reg>
+	</div>
+	<script type="text/javascript" src="js/vue.js"></script>
+	<script>
+		var IuputElement = {
+			template:"<div>\
+				<label><slot></slot></label>\
+				<input type='text' :value='value' @input='updateValue'/>\
+				<span>{{info}}</span>\
+			</div>",
+			props:['value','info'],		//传值
+			methods:{
+				updateValue:function(e){
+
+					this.$emit('input',e.target.value)
+				}
+			}
+		}
+		var Reg = {
+			template:"<div>\
+				<h1>注册</h1>\
+				<form>\
+					<IuputElement v-model='username.value' :info='username.info'>账户：</IuputElement>\
+					<IuputElement v-model='pwd.value' :info='pwd.info'>密码：</IuputElement>\
+					<IuputElement v-model='pwd2.value' :info='pwd2.info'>确认密码：</IuputElement>\
+					<IuputElement v-model='email.value' :info='email.info'>邮箱：</IuputElement>\
+					<input type='button' value='注册' />\
+				</form>\
+			</div>",
+			components:{
+				IuputElement:IuputElement
+			},
+			data:function(){
+				return{
+					username:{
+						value:"",
+						info:""
+					},
+					pwd:{
+						value:"",
+						info:""
+					},
+					pwd2:{
+						value:"",
+						info:""
+					},
+					email:{
+						value:"",
+						info:""
+					},
+				}
+			},
+			watch:{
+				"username.value":function(value){
+					if(/^\w{6,18}$/.test(value)){
+						this.username.info="√";
+					}else{
+						this.username.info="输入有误";
+					}
+				},
+				"pwd.value":function(value){
+					if(/^\w{6,18}$/.test(value)){
+						this.pwd.info="√";
+					}else{
+						this.pwd.info="输入有误";
+					}
+				},
+				"pwd2.value":function(value){
+					if(value == this.pwd.value){
+						this.pwd2.info="√";
+					}else{
+						this.pwd2.info="两次输入不一致";
+					}
+				},
+				"email.value":function(value){
+					if(/^\w{6,18}$/.test(value)){
+						this.email.info="√";
+					}else{
+						this.email.info="输入有误";
+					}
+				},
+			}
+		}
+
+		//创建一个实例
+		var App = new Vue({
+			el:"#app",
+			components:{
+				Reg:Reg
+			}
+		});
+	</script>
+</body>
+</html>
